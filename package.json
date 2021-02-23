@@ -1,8 +1,9 @@
 {
   "name": "a1723-chat-application",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "scripts": {
     "ng": "ng",
+    "startserver": "node ./bin/www",
     "start": "ng serve",
     "build": "ng build",
     "test": "ng test",
@@ -14,14 +15,26 @@
   "private": true,
   "dependencies": {
     "@angular/animations": "~11.0.6",
+    "@angular/cdk": "^11.2.0",
     "@angular/common": "~11.0.6",
     "@angular/compiler": "~11.0.6",
     "@angular/core": "~11.0.6",
     "@angular/forms": "~11.0.6",
+    "@angular/material": "^11.2.0",
     "@angular/platform-browser": "~11.0.6",
     "@angular/platform-browser-dynamic": "~11.0.6",
     "@angular/router": "~11.0.6",
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "morgan": "^1.10.0",
+    "ngx-socket-io": "^3.2.0",
     "rxjs": "~6.6.0",
+    "sequelize": "^6.5.0",
+    "sequelize-cli": "^6.2.0",
+    "serve-favicon": "^2.5.0",
+    "socket.io-client": "^3.1.0",
+    "socketio": "^1.0.0",
+    "sqlite3": "^5.0.1",
     "tslib": "^2.0.0",
     "zone.js": "~0.10.2"
   },
@@ -48,7 +61,17 @@
     "type": "git",
     "url": "git+https://github.com/ashutosh-bharti/A1723-chat-application.git"
   },
-  "author": "Ashutosh Bharti",
+  "author": {
+    "name": "Ashutosh Bharti"
+  },
+  "contributors": [
+    {
+      "name": "Ankita ."
+    },
+    {
+      "name": "Rishabh Sagar"
+    }
+  ],
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/ashutosh-bharti/A1723-chat-application/issues"

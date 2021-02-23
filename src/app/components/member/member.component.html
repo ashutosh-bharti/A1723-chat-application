@@ -1,0 +1,11 @@
+<mat-list class="members" *ngFor="let m of memberList">
+    <mat-list-item>
+        <img src="http://placehold.it/50/55C1E7/fff&text={{m.User.firstName[0]}}{{m.User.lastName[0]}}" alt="User Avatar"
+        class="img-circle" />
+        <div>{{m.User.firstName}} {{m.User.lastName}}</div>
+        <div *ngIf="m.isAdmin">
+            Admin
+        </div>
+    </mat-list-item>
+    <mat-divider></mat-divider>
+</mat-list>

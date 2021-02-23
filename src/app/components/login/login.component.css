@@ -1,0 +1,41 @@
+.center-content{
+  margin: 2%;
+  text-align: -moz-center;
+  /* width:40%; */
+  
+  /* padding-block-start: 12%; */
+}
+
+.mat-tab-group {
+  margin-bottom: 40px;
+  background-color: white;
+}
+
+.mat-card-subtitle, .mat-card-content{
+  font-size: 16px;
+}
+  
+.login-content {
+  width: 100%;
+  text-decoration-color: black;
+  /* margin-top: 10px; */
+  
+}
+
+form{
+  padding-right: 5%;
+  margin-bottom: 2%;
+}
+
+.mat-card-header{
+  display: flex;
+  justify-content: center;
+}
+
+.mat-flat-button{
+  margin-top: 10px;
+  width: 100%;
+  color: white;
+  background-color: brown;
+  height: 40px;
+}

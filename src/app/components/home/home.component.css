@@ -1,0 +1,28 @@
+.mat-tab-group {
+  padding: 2%;
+}
+
+.mat-tab-label {
+  text-decoration: violet;
+}
+
+.login-register {
+  background-color: gray;
+  text-align: -moz-center;
+  margin-top: 5%;
+  margin-left: 5%;
+  width:90%;
+}
+
+.chat-nav{
+  height: 100%;
+}
+
+.mat-cart {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 16px;
+  padding: 16px;
+  border-radius: 8px;
+}

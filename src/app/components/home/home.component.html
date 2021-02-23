@@ -1,0 +1,19 @@
+<div *ngIf="isLogin; else loginRegister" class="chat-nav">
+    <app-nav [userId] = 2></app-nav>
+</div>
+<ng-template #loginRegister>
+  <div class ="login-register">
+    <mat-tab-group mat-align-tabs="center" mat-stretch-tabs dynamicHeight>
+      <mat-tab label="LOGIN">
+        <div class="mat-cart mat-elevation-z4">
+          <app-login></app-login>
+        </div>
+      </mat-tab>
+      <mat-tab label="REGISETR">
+        <div class="mat-cart mat-elevation-z4">
+          <app-register></app-register>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</ng-template>
