@@ -11,7 +11,7 @@ const UserChat = db.UserChat;
 const authenticateUser = (req, res, next) => {
     const data = req.body;
     Authenticate.findOne({
-        where: { username: data.username, password: data.password }
+        where: { username: data.email, password: data.password }
     })
     .then((findedUser) => {
         if (findedUser === null) {
@@ -32,18 +32,18 @@ const authenticateUser = (req, res, next) => {
 const registerUser = (req, res, next) => {
     const data = req.body;
     Authenticate.findOne({
-        where: { username: data.username }
+        where: { username: data.email }
     })
     .then((findedUser) => {
         console.log(findedUser);
         if(findedUser === null){
             Authenticate.create({
-                username: data.username,
+                username: data.email,
                 password: data.password,
                 User: {
                     firstName: data.firstName,
                     lastName: data.lastName,
-                    email: data.username
+                    email: data.email
                 }
             },
             {
@@ -92,7 +92,7 @@ const updateUser = (req, res, next) => {
     if(data.query === 1){
         Authenticate.findOne({
             where: {
-                username: data.username,
+                username: data.email,
                 password: data.oldPassword,
                 id: req.params.id
             }
@@ -656,11 +656,41 @@ const getChatList = (req, res, next) => {
             userId: req.params.id
         }
     })
-        .then((findedChatList) => {
+        .then(async (findedChatList) => {
             if (findedChatList.length === 0) {
-                res.status(400).send({ message: 'Not found' });
+                res.status(404).send({ message: 'Not found' });
             }
             else {
+                for (var ele in findedChatList) {
+                    const id = findedChatList[ele].list.substr(1);
+                    if (findedChatList[ele].list.startsWith("u")) {
+                        const findedUser = await User.findByPk(id,
+                        {
+                            attributes: ['firstName', 'lastName']
+                        })
+                        .catch((err) => {
+                            console.log("Error while delete chatList : ", err);
+                            next(err);
+                        });
+                        if(findedUser != null){
+                            findedChatList[ele].name = findedUser.firstName + " " + findedUser.lastName;
+                        }
+                    }
+                    else {
+                        const findedGroup = await Group.findByPk(id,
+                        {
+                            attributes: ['name', 'owner']
+                        })
+                        .catch((err) => {
+                            console.log("Error while delete chatList : ", err);
+                            next(err);
+                        });
+                        if (findedGroup != null) {
+                            findedChatList[ele].name = findedGroup.name;
+                            findedChatList[ele].owner = findedGroup.owner;
+                        }
+                    }
+                }
                 res.json(findedChatList);
             }
         })
