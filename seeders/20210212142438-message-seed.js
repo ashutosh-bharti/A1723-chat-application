@@ -11,6 +11,13 @@ module.exports = {
         updatedAt: new Date()
       },
       {
+        text: 'Let Start Chat!',
+        owner: 1,
+        messageFor: 'u1',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
         text: 'Ankita joined the group.',
         owner: 1,
         messageFor: 'g1',

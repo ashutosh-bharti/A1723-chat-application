@@ -10,6 +10,7 @@ const {
     createChatList,
     createGroup,
     createMessage,
+    createMemberChat,
     createUserChat,
     deleteChatList,
     deleteGroup,
@@ -48,22 +49,30 @@ const botId = 1;
 
 // Run when client connects
 io.on('connection', socket => {
-    socket.on('joinRoom', ({ userId, room}) => {
-        const user = userJoin(socket.id, userId, room);
+    socket.on('joinRoom', ({ userId, room, msgData}) => {
 
-        // console.log('joinRoom', user, socket.id, userId, room, updated_at);
-        
+        let user = updateUserRoom(socket.id, room);
+        if (user === null) {
+            user = userJoin(socket.id, userId, room);
+        }
+
         socket.join(user.room);
 
-        // Welcome current user
-        socket.emit('botMessage', { result: { room: user.room, userId: botId, messageId: 1} }); //'Welcome to Chat!'
+        // create chat data
+        const data = {
+            Message: msgData,
+            messageId: msgData.id,
+            list: room,
+            userId: userId,
+            state: null
+        };
 
         // Broadcast when a user connects
         socket.broadcast
             .to(user.room)
             .emit(
                 'botMessage',
-                { result: { room: user.room, userId: botId, messageId: 2 } } //`${user.username} joined the group`
+                { result: data }
             );
 
             // Send users and room info
@@ -71,13 +80,15 @@ io.on('connection', socket => {
                 room: user.room,
                 users: getRoomUsers(user.room)
             });
+
+        // save message to database
+        createMemberChat(data);
+
     });
 
     // Listen for chatMessage
     socket.on('chatMessage', data => {
         const user = getCurrentUser(socket.id);
-
-        // console.log('chatMessage', user, data);
 
         io.to(user.room).emit(
             'message',
@@ -85,11 +96,14 @@ io.on('connection', socket => {
         );
 
         // save message to database
+        createMemberChat(data);
 
     });
 
     socket.on('changeRoom', ({ userId, room}) => {
-        const user = updateUserRoom(socket.id, room);
+
+        let user = updateUserRoom(socket.id, room);
+
         if(user !== null){
             socket.join(user.room);
 
@@ -110,20 +124,25 @@ io.on('connection', socket => {
                 users: getRoomUsers(user.room)
             });
         }
-        // get message of that chatList
-
     });
 
     // Runs when client leave
-    socket.on('leaveRoom', ({ userId, room }) => {
+    socket.on('leaveRoom', ({ userId, room, msgData}) => {
         const user = userLeave(socket.id);
 
-        // console.log('leaveRoom', user, userId, room, updated_at);
+        // create chat data
+        const data = {
+            Message: msgData,
+            messageId: msgData.id,
+            list: room,
+            userId: userId,
+            state: null
+        };
 
         if (user) {
             io.to(user.room).emit(
                 'botMessage',
-                { result: { room: user.room, userId: botId, message: 3 } } //`${user.username} left the group`
+                { result: data } //`${user.username} left the group`
             );
 
             // Send users and room info
@@ -131,14 +150,15 @@ io.on('connection', socket => {
                 room: user.room,
                 users: getRoomUsers(user.room)
             });
+
+            // save message to database
+            createMemberChat(data);
         }
     });
 
     // Runs when client disconnects
     socket.on('disconnect', () => {
         const user = userLeave(socket.id);
-        
-        // console.log('disconnect', user);
 
         if (user !== null) {
             // Send users and room info
@@ -163,7 +183,8 @@ router.delete('/users/:id', deleteUser);
 
 // group routes
 router.post('/groups/new', createGroup);
-router.get('/groups/:id', getGroup);
+router.get('/groups/list', getGroups);  // all common lis of group
+router.get('/groups/:id', getGroup);  // group details
 router.put('/groups/:id', updateGroup);
 router.delete('/groups/:id', deleteGroup);
 

@@ -1,3 +1,4 @@
+const { Op } = require("sequelize");
 const db = require('../../models');
 const Authenticate = db.Authenticate;
 const ChatList = db.ChatList;
@@ -182,31 +183,62 @@ const createGroup = (req, res, next) => {
         owner: data.userId,
         groupCode: `uSG`
     })
-    .then((newGroup) => {
+    .then(async (newGroup) => {
         newGroup.groupCode = `uS${data.userId}G${newGroup.id}`;
         newGroup.save();
-        Member.create({
+        await Member.create({
             userId: data.userId,
             groupId: newGroup.id,
             isAdmin: true
-        })
-        .then((newMember) => {
-            ChatList.create({
-                userId: newMember.userId,
-                list: `g${newGroup.id}`
-            })
-            .then((newChatList) => {
-                    res.send({newGroup: newGroup.toJSON(), newMember: newMember.toJSON(), newChatList: newChatList.toJSON()});
-            })
-            .catch((err) => {
-                console.log("Error while create chatList : ", err);
-                next(err);
-            });
         })
         .catch((err) => {
             console.log("Error while add member : ", err);
             next(err);
         });
+
+        const list = `g${newGroup.id}`;
+
+        // create userchat welcome message
+        let newUserChat = await UserChat.create({
+            userId: data.userId,
+            messageId: 1,
+            list: list
+        })
+        .catch((err) => {
+            console.log("Error while create UserChat : ", err);
+            next(err);
+        });
+        
+        const findedMessage = await Message.findByPk(1, {
+                attributes: ['id', 'text', 'owner', 'isEdited', 'messageFor']
+            })
+            .catch((err) => {
+                console.log("Error while create chatList : ", err);
+                next(err);
+            });
+
+        let newChatList = await ChatList.create({
+                userId: data.userId,
+                list: list,
+                isChatable: true
+            })
+            .catch((err) => {
+                console.log("Error while create chatList : ", err);
+                next(err);
+            });
+            
+
+        newUserChat = newUserChat.toJSON();
+        newUserChat.Message = findedMessage.toJSON();
+
+        newChatList = newChatList.toJSON();
+
+        newChatList.name = newGroup.name;
+        newChatList.owner = newGroup.owner;
+        newChatList.groupCode = newGroup.groupCode;
+        newChatList.Chat = newUserChat;
+
+        res.send(newChatList);
     })
     .catch((err) => {
         console.log("Error while create group : ", err);
@@ -296,17 +328,25 @@ const deleteGroup = (req, res, next) => {
 
 // get groups of one user
 const getGroups = (req, res, next) => {
-    const userId = req.params.id;
-    Member.findAll({
-        raw: true,
-        where: { userId: userId },
-        attributes: ['groupId']
-    })
+    const userId_1 = req.query.user_1;
+    const userId_2 = req.query.user_2;
+    db.sequelize.query(
+        'SELECT G.id, G.name FROM groups G INNER JOIN members M1 on G.id = M1.groupId INNER JOIN members M2 on M1.groupId = M2.groupId WHERE M1.userId = :user1 AND M2.userId = :user2',
+        {
+            nest: true,
+            replacements: {
+                user1: userId_1,
+                user2: userId_2
+            },
+            type: db.sequelize.QueryTypes.SELECT
+        }
+    )
         .then((findedGroups) => {
             if (findedGroups.length === 0) {
                 res.status(400).send({ message: 'Not found' });
             }
             else {
+                console.log(findedGroups);
                 res.json(findedGroups);
             }
         })
@@ -318,36 +358,81 @@ const getGroups = (req, res, next) => {
 
 // add member to group
 const addMembers = (req, res, next) => {
+    const data = req.body;
     Group.findOne({
         where: {
-            groupCode: req.body.groupCode
+            groupCode: data.groupCode
         },
-        attributes: ['id']
+        attributes: ['id', 'name', 'owner', 'groupCode']
     })
-    .then((findedGroup) => {
+    .then(async (findedGroup) => {
         if (findedGroup === null) {
             res.status(400).send({ message: 'Not found' });
         }
         else {
-            Member.create({
-                userId: req.body.userId,
-                groupId: findedGroup.id,
-                isAdmin: false
-            })
-            .then((newMember) => {
-                return ChatList.create({
-                    userId: req.body.userId,
-                    list: `g${newMember.groupId}`,
-                    isChatable: true
-                })
-            })
-            .then((newChatList) => {
-                res.send(newChatList.toJSON());
+            const [newMember, created] = await Member.findOrCreate({
+                where: {
+                    userId: data.userId,
+                    groupId: findedGroup.id
+                },
+                defaults: {
+                    userId: data.userId,
+                    groupId: findedGroup.id,
+                    isAdmin: false
+                }
             })
             .catch((err) => {
                 console.log("Error while find member : ", err);
                 next(err);
             });
+            if (created) {
+                const list = `g${newMember.groupId}`;
+
+                // create userchat welcome message
+                let newUserChat = await UserChat.create({
+                    userId: data.userId,
+                    messageId: 1,
+                    list: list
+                })
+                .catch((err) => {
+                    console.log("Error while create UserChat : ", err);
+                    next(err);
+                });
+
+                const findedMessage = await Message.findByPk(1, {
+                        attributes: ['id', 'text', 'owner', 'isEdited', 'messageFor']
+                    })
+                    .catch((err) => {
+                        console.log("Error while create chatList : ", err);
+                        next(err);
+                    });
+
+                // create chatList
+                let newChatList  = await ChatList.create({
+                    userId: data.userId,
+                    list: list,
+                    isChatable: true
+                })
+                .catch((err) => {
+                    console.log("Error while create ChatList : ", err);
+                    next(err);
+                });
+
+                newUserChat = newUserChat.toJSON();
+                newUserChat.Message = findedMessage.toJSON();
+
+                newChatList = newChatList.toJSON();
+                
+                newChatList.name = findedGroup.name;
+                newChatList.owner = findedGroup.owner;
+                newChatList.groupCode = findedGroup.groupCode;
+                newChatList.Chat = newUserChat;
+
+                res.send({found: false, data: newChatList});
+            }
+            else {
+                res.send({found: true, message: 'You are already joined the group.' });
+            }
         }
     })
     .catch((err) => {
@@ -562,9 +647,13 @@ const getUserChat = (req, res, next) => {
                     userId: findedChatList.userId,
                     list: findedChatList.list
                 },
-                include:{
+                include: {
                     association: UserChat.userChatMessage,
-                    attributes: ['id', 'text', 'owner', 'isEdited', 'messageFor', 'createdAt', 'updatedAt']
+                    attributes: ['id', 'text', 'owner', 'isEdited', 'messageFor', 'createdAt', 'updatedAt'],
+                    include: {
+                        association: Message.messageOwner,
+                        attributes: ['firstName', 'lastName'],
+                    }
                 }
             })
                 .then((findedUserChat) => {
@@ -591,21 +680,25 @@ const getUserChat = (req, res, next) => {
 const updateUserChat = (req, res, next) => {
     const data = req.body;
     UserChat.update({
-        state: data.state
+        state: true
     },
     {
         where: {
             userId: data.userId,
-            messageId: req.params.id
+            list: data.list,
+            messageId: {
+                [Op.lte]: req.params.id
+            },
+            state: {
+                [Op.or]: {
+                    [Op.eq]: false,
+                    [Op.eq]: null
+                }
+            }
         }
     })
         .then((updatedUserChat) => {
-            if (updatedUserChat[0] === 0) {
-                res.status(400).send({ message: 'Not found' });
-            }
-            else {
-                res.send({ id: req.params.id });
-            }
+            res.send({ id: req.params.id });
         })
         .catch((err) => {
             console.log("Error while update userChat : ", err);
@@ -634,42 +727,102 @@ const deleteUserChat = (req, res, next) => {
 
 // create chatList
 const createChatList = (req, res, next) => {
-    ChatList.create({
-        userId: req.body.userId,
-        list: req.body.list,
-        isChatable: true
+    const data = req.body;
+    User.findOne({
+        where: {
+            email: data.email
+        },
+        attributes: ['id', 'firstName', 'lastName']
     })
-        .then((newUserChat) => {
-            res.send(newUserChat.toJSON());
-        })
-        .catch((err) => {
-            console.log("Error while create chatList : ", err);
-            next(err);
-        });
+    .then(async (findedUser) => {
+        if (findedUser === null) {
+            res.status(400).send({ message: 'Not found' });
+        }
+        else {
+            const list = `u${findedUser.id}`;
+
+            // create chatList
+            let [newChatList, created] = await ChatList.findOrCreate({
+                    where: {
+                        userId: data.userId,
+                        list: list
+                    },
+                    defaults: {
+                        userId: data.userId,
+                        list: list,
+                        isChatable: true
+                    }
+                })
+                .catch((err) => {
+                    console.log("Error while create ChatList : ", err);
+                    next(err);
+                });
+
+            if (created) {
+                // create userchat welcome message
+                let newUserChat = await UserChat.create({
+                        userId: data.userId,
+                        messageId: 2,
+                        list: list
+                    })
+                    .catch((err) => {
+                        console.log("Error while create UserChat : ", err);
+                        next(err);
+                    });
+
+                const findedMessage = await Message.findByPk(2, {
+                        attributes: ['id', 'text', 'owner', 'isEdited', 'messageFor']
+                    })
+                    .catch((err) => {
+                        console.log("Error while create chatList : ", err);
+                        next(err);
+                    });
+
+                newUserChat = newUserChat.toJSON();
+                newUserChat.Message = findedMessage.toJSON();
+
+                newChatList = newChatList.toJSON();
+
+                newChatList.name = findedUser.firstName + " " + findedUser.lastName;
+                newChatList.Chat = newUserChat;
+
+                res.send({ found: false, data: newChatList });
+            }
+            else {
+                res.send({ found: true, message: 'The person is already in your Chat List.' });
+            }
+        }
+    })
+    .catch((err) => {
+        console.log("Error while find user : ", err);
+        next(err);
+    });
 }
 
 // get chatList
 const getChatList = (req, res, next) => {
+    const userId = req.params.id;
     ChatList.findAll({
         raw: true,
         where: {
-            userId: req.params.id
+            userId: userId
         }
     })
         .then(async (findedChatList) => {
             if (findedChatList.length === 0) {
-                res.status(404).send({ message: 'Not found' });
+                res.status(400).send({ message: 'Not found' });
             }
             else {
                 for (var ele in findedChatList) {
-                    const id = findedChatList[ele].list.substr(1);
-                    if (findedChatList[ele].list.startsWith("u")) {
+                    const list = findedChatList[ele].list;
+                    const id = list.substr(1);
+                    if (findedChatList[ele].list[0] == 'u') {
                         const findedUser = await User.findByPk(id,
                         {
                             attributes: ['firstName', 'lastName']
                         })
                         .catch((err) => {
-                            console.log("Error while delete chatList : ", err);
+                            console.log("Error while find User : ", err);
                             next(err);
                         });
                         if(findedUser != null){
@@ -679,17 +832,38 @@ const getChatList = (req, res, next) => {
                     else {
                         const findedGroup = await Group.findByPk(id,
                         {
-                            attributes: ['name', 'owner']
+                            attributes: ['name', 'owner', 'groupCode']
                         })
                         .catch((err) => {
-                            console.log("Error while delete chatList : ", err);
+                            console.log("Error while find Group : ", err);
                             next(err);
                         });
                         if (findedGroup != null) {
                             findedChatList[ele].name = findedGroup.name;
                             findedChatList[ele].owner = findedGroup.owner;
+                            findedChatList[ele].groupCode = findedGroup.groupCode;
                         }
                     }
+
+                    const findedUserChat = await UserChat.findOne({
+                        raw: true,
+                        nest: true,
+                        where: {
+                            list: list,
+                            userId: userId
+                        },
+                        include: {
+                            association: UserChat.userChatMessage,
+                            attributes: ['id', 'text', 'owner', 'isEdited', 'messageFor']
+                        },
+                        order: [['createdAt', 'DESC']]
+                    })
+                    .catch((err) => {
+                        console.log("Error while find UserChat : ", err);
+                        next(err);
+                    });
+
+                    findedChatList[ele].Chat = findedUserChat;
                 }
                 res.json(findedChatList);
             }
@@ -769,12 +943,58 @@ const deleteChatList = (req, res, next) => {
     });
 }
 
+// create Member Chat
+const createMemberChat = async (data) => {
+    const id = parseInt(data.list.substr(1));
+    if (data.list[0] === 'u') {
+        const list = `u${data.userId}`;
+        await UserChat.create({
+            userId: id,
+            list: list,
+            messageId: data.messageId
+        });
+        await ChatList.findOrCreate({
+            where: {
+                userId: id,
+                list: list
+            },
+            defaults: {
+                userId: id,
+                list: list,
+                isChatable: true
+            }
+        });
+    }
+    else {
+        Member.findAll({
+            raw: true,
+            where: {
+                groupId: id,
+                userId: {
+                    [Op.ne]: data.userId
+                }
+            },
+            attributes: ['userId']
+        })
+            .then(async (findedMembers) => {
+                if (findedMembers.length !== 0) {
+                    for(var ele in findedMembers) {
+                        findedMembers[ele].list = data.list;
+                        findedMembers[ele].messageId = data.messageId;
+                    }
+                    await UserChat.bulkCreate(findedMembers);
+                }
+            })
+    }
+}
+
 module.exports = {
     addMembers,
     authenticateUser,
     createChatList,
     createGroup,
     createMessage,
+    createMemberChat,
     createUserChat,
     deleteChatList,
     deleteGroup,

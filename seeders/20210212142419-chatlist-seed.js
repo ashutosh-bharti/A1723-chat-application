@@ -33,7 +33,7 @@ module.exports = {
       },
       {
         userId: 3,
-        list: 'u1',
+        list: 'u2',
         isChatable: true,
         createdAt: new Date(),
         updatedAt: new Date()
@@ -54,7 +54,7 @@ module.exports = {
       },
       {
         userId: 4,
-        list: 'u1',
+        list: 'u2',
         isChatable: true,
         createdAt: new Date(),
         updatedAt: new Date()

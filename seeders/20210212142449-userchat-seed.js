@@ -19,7 +19,7 @@ module.exports = {
       },
       {
         userId: 2,
-        messageId: 2,
+        messageId: 3,
         list: 'g1',
         createdAt: new Date(),
         updatedAt: new Date()
@@ -33,21 +33,21 @@ module.exports = {
       },
       {
         userId: 2,
-        messageId: 3,
+        messageId: 4,
         list: 'g1',
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         userId: 3,
-        messageId: 3,
+        messageId: 4,
         list: 'g1',
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         userId: 2,
-        messageId: 4,
+        messageId: 5,
         list: 'g1',
         state: true,
         createdAt: new Date(),
@@ -55,7 +55,7 @@ module.exports = {
       },
       {
         userId: 3,
-        messageId: 4,
+        messageId: 5,
         list: 'g1',
         state: true,
         createdAt: new Date(),
@@ -63,7 +63,7 @@ module.exports = {
       },
       {
         userId: 4,
-        messageId: 4,
+        messageId: 5,
         list: 'g1',
         state: true,
         createdAt: new Date(),
@@ -71,7 +71,7 @@ module.exports = {
       },
       {
         userId: 3,
-        messageId: 5,
+        messageId: 6,
         list: 'g1',
         state: true,
         createdAt: new Date(),
@@ -79,7 +79,7 @@ module.exports = {
       },
       {
         userId: 2,
-        messageId: 5,
+        messageId: 6,
         list: 'g1',
         state: false,
         createdAt: new Date(),
@@ -87,23 +87,23 @@ module.exports = {
       },
       {
         userId: 4,
-        messageId: 5,
+        messageId: 6,
         list: 'g1',
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         userId: 2,
-        messageId: 6,
+        messageId: 2,
         list: 'u3',
         state: true,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
-        userId: 3,
-        messageId: 6,
-        list: 'u2',
+        userId: 2,
+        messageId: 7,
+        list: 'u3',
         state: true,
         createdAt: new Date(),
         updatedAt: new Date()
@@ -117,16 +117,32 @@ module.exports = {
         updatedAt: new Date()
       },
       {
-        userId: 2,
-        messageId: 7,
-        list: 'u3',
-        state: false,
+        userId: 3,
+        messageId: 8,
+        list: 'u2',
+        state: true,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         userId: 2,
         messageId: 8,
+        list: 'u3',
+        state: false,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        userId: 2,
+        messageId: 2,
+        list: 'u4',
+        state: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        userId: 2,
+        messageId: 9,
         list: 'u4',
         state: true,
         createdAt: new Date(),
@@ -134,7 +150,7 @@ module.exports = {
       },
       {
         userId: 4,
-        messageId: 8,
+        messageId: 9,
         list: 'u2',
         createdAt: new Date(),
         updatedAt: new Date()

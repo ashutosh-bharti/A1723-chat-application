@@ -1,0 +1,18 @@
+<div mat-dialog-title>
+    <button mat-icon-button mat-dialog-close>
+        <mat-icon>close</mat-icon>
+    </button>
+    <h1>Profile</h1>
+</div>
+<div mat-dialog-content class="user-info">
+    <mat-card>
+        <mat-card-header class="user-info-header">
+            <img src="http://placehold.it/50/FA6F57/fff&text={{user.firstName[0].toUpperCase() + user.lastName[0].toUpperCase()}}"
+                alt="image" class="header-img">
+            <div class="user-info-header-content">
+                <div class="info-name"><label>Name:</label> {{user.firstName}} {{user.lastName}}</div>
+                <div class="info-subtitle"><label>Email:</label> {{user.email}}</div>
+            </div>
+        </mat-card-header>
+    </mat-card>
+</div>
