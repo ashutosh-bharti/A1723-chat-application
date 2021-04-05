@@ -1,0 +1,63 @@
+<mat-card class="chat-info">
+  <mat-card-header class="chat-info-header">
+    <button mat-icon-button (click)="closeScreen()">
+      <mat-icon>close</mat-icon>
+    </button>
+    <img src="http://placehold.it/50/FA6F57/fff&text={{infoData.name[0].toUpperCase()}}" alt="image" class="header-img">
+    <div class="chat-info-header-content">
+      <div class="info-name"><label>Name:</label> {{infoData.name}}</div>
+      <div *ngIf="isGroup" class="info-subtitle"><label>Group Code:</label> {{infoData.groupCode}}</div>
+    </div>
+  </mat-card-header>
+  <mat-card-content [ngStyle]="{width: 'fit-content'}">
+    <div class="chat-info-body">
+      <ng-container *ngIf="isGroup; else groupList">
+        <label>Members:</label>
+        <div class="data-list">
+          <ng-container *ngIf="isWait === true">
+            <mat-spinner></mat-spinner>
+          </ng-container>
+          <mat-list [ngStyle]="{width: '100%', height:'100%'}">
+            <mat-divider></mat-divider>
+            <mat-list-item *ngFor="let m of listData">
+              <!-- <mat-icon color="accent" class="onlineStatus">circle</mat-icon> -->
+              <img class="data-list-items"
+                src="http://placehold.it/50/55C1E7/fff&text={{m.User.firstName[0].toUpperCase()}}{{m.User.lastName[0].toUpperCase()}}" alt="User Avatar"
+                class="img-circle" />
+              <div class="data-list-items">{{m.User.firstName}} {{m.User.lastName}}</div>
+              <div class="data-list-items" *ngIf="m.isAdmin">
+                {{m.userId !== infoData.owner ? 'Admin' : 'Owner'}}
+              </div>
+              <mat-divider></mat-divider>
+            </mat-list-item>
+          </mat-list>
+        </div>
+      </ng-container>
+      <ng-template #groupList>
+        <label>Common Groups:</label>
+        <div class="data-list">
+          <ng-container *ngIf="isWait === true">
+            <mat-spinner></mat-spinner>
+          </ng-container>
+          <mat-list [ngStyle]="{width: '100%', height:'100%'}">
+            <mat-divider></mat-divider>
+            <ng-container *ngIf="listData.length === 0; else showList">
+              <mat-list-item>
+                No common group
+              </mat-list-item>
+            </ng-container>
+            <ng-template #showList>
+              <mat-list-item *ngFor="let g of listData">
+                <img class="data-list-items"
+                  src="http://placehold.it/50/55C1E7/fff&text={{g.name[0].toUpperCase()}}" alt="User Avatar"
+                  class="img-circle" />
+                <div class="data-list-items">{{g.name}}</div>
+                <mat-divider></mat-divider>
+              </mat-list-item>
+            </ng-template>
+          </mat-list>
+        </div>
+      </ng-template>
+    </div>
+  </mat-card-content>
+</mat-card>

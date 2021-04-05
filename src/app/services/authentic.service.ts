@@ -1,32 +1,35 @@
 import { Injectable } from '@angular/core';
-import { HttpClient} from '@angular/common/http';
-
-
+import { HttpClient } from '@angular/common/http';
 
 @Injectable()
 export class AuthenticService {
 
-  users: any = [{username:'abs@xyz.com',password:'Abcd@123',firstName:'Abc',lastName:'Xyz',id:1}];
-  constructor(private http: HttpClient) { }
+  private baseURL = 'http://localhost:3000/api';
+  user: any;
 
-  //login(loginForm:LoginForm){
-  //return this.http.post<any>('/api/user', user).pipe
-    // this.users[0].username
-  //}
+  constructor(private http: HttpClient) {
+    // this.user = { id: 2, email: 'ashu@bot.com', firstName: 'Ashutosh', lastName: 'Bharti' };
+  }
+
+  login(data: any): any {
+    return this.http.post(this.baseURL + '/users', data);
+  }
+
   register(user: any): any {
-    //return this.http.post('/api/user/new', user);
+    return this.http.post(this.baseURL + '/users/new', user);
   }
+
   getUser(id: number): any {
-  //return this.http.get('/api/user/' + id);  
+    return this.http.get(this.baseURL + '/users/' + id);
   }
-  updateDetails(id: number): any {
-    //return this.http.get('/api/user/' + id);
+
+  updateDetails(id: number, data: any): any {
+    return this.http.put(this.baseURL + '/users/' + id, data);
   }
-  deleteDetails(id: number):any{
- //return this.http.delete('./api/users/' + id);
-}  
 
-
+  deleteDetails(id: number): any {
+    return this.http.delete(this.baseURL + '/users/' + id);
+  }
 
 }
 

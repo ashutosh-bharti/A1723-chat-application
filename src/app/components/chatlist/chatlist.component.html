@@ -1,4 +1,39 @@
-<mat-list *ngFor="let list of chatList">
-    <mat-list-item>{{list.list}}</mat-list-item>
-    <mat-divider></mat-divider>
+<mat-list *ngIf="chatList.length == 0; else showList">
+    <mat-list-item>Let Start Chat</mat-list-item>
 </mat-list>
+<ng-container *ngIf="isWait === true">
+    <mat-spinner></mat-spinner>
+</ng-container>
+<ng-template #showList>
+    <div class="chatlist">
+        <mat-list>
+            <mat-divider></mat-divider>
+            <mat-list-item class="chatlist-item" color="#616161" *ngFor="let cl of chatList" selected  (click)="viewChatScreen(cl)">
+                <img mat-list-icon
+                    [ngStyle]="{width:'30px', height:'30px', 'font-size':'30px'}"
+                    src="http://placehold.it/50/FA6F57/fff&text={{cl.name[0].toUpperCase()}}"
+                    alt="Avatar"
+                    class="avatar-img" />
+                <div mat-line>
+                    {{cl.name.substr(0,20)}}
+                </div>
+                <div mat-line>
+                    <div class="item">
+                        <div class="itemcol">{{cl.Chat.Message.text.substr(0,10)}}</div>
+                        <div class="itemcol time-div">{{cl.Chat.updatedAt | date: isMsgFromOtherDay(cl.Chat) ? 'shortDate' : 'shortTime'}}</div>
+                    </div>
+                </div>
+                <button mat-icon-button [matMenuTriggerFor]="chatListMenu" aria-label="vertical three dot icon">
+                    <mat-icon>more_vert</mat-icon>
+                </button>
+                <mat-divider></mat-divider>
+                <mat-menu #chatListMenu="matMenu">
+                    <button mat-menu-item (click)="actionDailog(cl)">
+                        <mat-icon>delete</mat-icon>
+                        <span>Leave</span>
+                    </button>
+                </mat-menu>
+            </mat-list-item>
+        </mat-list>
+    </div>
+    </ng-template>

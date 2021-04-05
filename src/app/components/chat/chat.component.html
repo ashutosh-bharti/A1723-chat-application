@@ -1,103 +1,94 @@
-<div class="container">
-  <div class="row">
-    <div *ngIf="joinned; else joinroom">
-      <div class="col-md-3">
-        <div class="panel panel-primary panel-sidebar">
-          <div class="panel-heading">
-            Members
-          </div>
-          <div class="panel-body">
-            <ul class="members">
-              <li *ngFor="let m of members">{{m.username}}</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-8">
-        <div class="panel panel-primary">
-          <div class="panel-heading">
-            <span class="glyphicon glyphicon-comment"></span> {{ msgData.room }}
-            <div class="btn-group pull-right">
-              <button type="button" class="btn btn-default btn-xs" (click)="logout()">
-                Logout
-              </button>
-            </div>
-          </div>
-          <div #scrollMe class="panel-body">
-            <ul class="chat">
-              <li *ngFor="let c of chats">
-                <div class="left clearfix" *ngIf="c.username===msgData.username; else rightchat">
-                  <span class="chat-img pull-left">
-                    <img src="http://placehold.it/50/55C1E7/fff&text=ME" alt="User Avatar" class="img-circle" />
-                  </span>
-                  <div class="chat-body clearfix">
-                    <div class="header">
-                      <strong class="primary-font">{{ c.username }}</strong> <small class="pull-right text-muted">
-                        <span class="glyphicon glyphicon-time"></span>{{ c.updated_at | date: 'medium' }}</small>
-                    </div>
-                    <p>{{ c.message }}</p>
-                  </div>
-                </div>
-                <ng-template #rightchat>
-                  <div class="right clearfix">
-                    <span class="chat-img pull-right">
-                      <img src="http://placehold.it/50/FA6F57/fff&text=U" alt="User Avatar" class="img-circle" />
-                    </span>
-                    <div class="chat-body clearfix">
-                      <div class="header">
-                        <small class=" text-muted"><span class="glyphicon glyphicon-time"></span>{{ c.updated_at | date:
-                          'medium' }}</small>
-                        <strong class="pull-right primary-font">{{ c.username }}</strong>
-                      </div>
-                      <p>{{ c.message }}</p>
-                    </div>
-                  </div>
-                </ng-template>
-              </li>
-            </ul>
-          </div>
-          <div class="panel-footer">
-            <form (ngSubmit)="sendMessage()" #msgForm="ngForm">
-              <div class="input-group">
-                <input type="hidden" [(ngModel)]="msgData.room" name="room" />
-                <input type="hidden" [(ngModel)]="msgData.username" name="username" />
-                <input id="btn-input" type="text" [(ngModel)]="msgData.message" name="message"
-                  class="form-control input-sm" placeholder="Type your message here..." required="" />
-                <span class="input-group-btn">
-                  <button class="btn btn-warning btn-sm" id="btn-chat" [disabled]="!msgForm.form.valid">
-                    Send</button>
-                </span>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
+<mat-card class="chat-screen">
+  <mat-card-header (click)="info('header')" matRipple [matRippleCentered]=true>
+    <img mat-card-avatar src="http://placehold.it/50/FA6F57/fff&text={{chatItem.name[0].toUpperCase()}}" alt="Avatar" class="header-img" />
+    <mat-card-title>{{chatItem.name}}</mat-card-title>
+    <mat-card-subtitle>{{onlineStatusText}}</mat-card-subtitle>
+  </mat-card-header>
+  <mat-divider></mat-divider>
+
+  <mat-card-content [ngStyle]="{width: 'fit-content'}">
+    <ng-container *ngIf="isWait === true">
+      <mat-spinner></mat-spinner>
+    </ng-container>
+    <div *ngIf="Chats.length === 0; else chatBody">
+      No chats available
     </div>
-    <ng-template #joinroom>
-      <div class="col-md-5">
-        <div class="panel panel-primary">
-          <div class="panel-heading">
-            <h1>Select Chat Room</h1>
+    <ng-template #chatBody>
+      <div (scroll)="scrolled($event)" #scrollframe class="chat-screen-body">
+        <mat-chip-list class="message-list">
+          <div *ngFor="let c of Chats; let i = index" class="chat-message" #item>
+
+            <div *ngIf="isprevMsgFromOtherDay(i)" class="date-divider">
+              <mat-chip color="accent" selected removable="false">
+                {{c.Message.createdAt | date}}
+              </mat-chip>
+            </div>
+
+            <div *ngIf="c.Message.owner == 1" class="admin-message">
+              <mat-chip color="primary" selected removable="false">
+                {{c.Message.text}}
+              </mat-chip>
+            </div>
+    
+            <div *ngIf="c.Message.owner == chatItem.userId" class="right-message-box">
+                <mat-card style="background-color: #616161;">
+                  <mat-card-header>
+                    <button mat-icon-button (click)="info('message', c.Message)">
+                      <mat-icon>info</mat-icon>
+                    </button>
+                    <mat-card-subtitle>{{c.Message.createdAt | date:'shortTime'}}</mat-card-subtitle>
+                  </mat-card-header>
+                  <mat-card-content style="display: inline-flex; flex-direction: column; width: 100%;">
+                  <span style="overflow-wrap: break-word;">{{c.Message.text}}</span>
+                  <span *ngIf="c.Message.isEdited == 1">Edited</span>
+                </mat-card-content>
+              </mat-card>
+            </div>
+
+              <div *ngIf="c.Message.owner != 1 && c.Message.owner != chatItem.userId" class="left-message-box">
+                <mat-card matRipple style="background-color: #616161;">
+                  <mat-card-header>
+                    <img *ngIf="!isPrevSameAuthor(i)" mat-card-avatar src="http://placehold.it/50/FA6F57/fff&text={{c.Message.User.firstName[0].toUpperCase()}}" alt="User Avatar" width="50px" class="user-img" />
+                    <mat-card-title *ngIf="!isAuthorSame" style="font-size: 16px;">
+                      {{c.Message.User.firstName + ' ' + c.Message.User.lastName}}
+                    </mat-card-title>
+                    <mat-card-subtitle>{{c.Message.createdAt | date:'shortTime'}}</mat-card-subtitle>
+                  </mat-card-header>
+                  <mat-card-content style="display: inline-flex; flex-direction: column; width: 100%;">
+                    <span style="overflow-wrap: break-word;">{{c.Message.text}}</span>
+                    <span *ngIf="c.Message.isEdited == 1">Edited</span>
+                  </mat-card-content>
+                </mat-card>
+              </div>
+
           </div>
-          <div class="panel-body">
-            <form (ngSubmit)="joinRoom()" #joinForm="ngForm">
-              <div class="form-group">
-                <input type="text" class="form-control" [(ngModel)]="newUser.username" name="username"
-                  placeholder="Username" required="" />
-              </div>
-              <div class="form-group">
-                <select class="form-control" [(ngModel)]="newUser.room" name="room" required="">
-                  <option>Select Room</option>
-                  <option *ngFor="let room of rooms" value="{{room}}">{{room}}</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <button type="submit" class="btn btn-success" [disabled]="!joinForm.form.valid">Join</button>
-              </div>
-            </form>
-          </div>
-        </div>
+        </mat-chip-list>
       </div>
     </ng-template>
-  </div>
-</div>
+  
+    <mat-card-actions class="chat-footer">
+      <ng-container *ngIf="chatItem.isChatable; else blockedText">
+        <form (ngSubmit)="sendMessage()" #msgForm="ngForm">
+          <div class="input-group">
+            <input type="hidden" [(ngModel)]="msgData.room" name="room" />
+          <input type="hidden" [(ngModel)]="msgData.userId" name="userId">
+          <mat-form-field appearance="outline" [ngStyle]="{padding: '0'}">
+            <input matInput [(ngModel)]="msgData.message" name="message" autocomplete="off" placeholder="Type your message here..." required>
+          </mat-form-field>
+          <span class="input-group-btn">
+            <button type="submit" id="sendBtn" mat-flat-button color="accent" [disabled]="!msgForm.form.valid">
+              Send
+            </button>
+          </span>
+        </div>
+      </form>
+      </ng-container>
+      <ng-template #blockedText>
+        <div class="chat-footer-info">
+          You are no longer chat with the person!
+        </div>
+      </ng-template>
+    </mat-card-actions>
+  </mat-card-content>
+  
+</mat-card>

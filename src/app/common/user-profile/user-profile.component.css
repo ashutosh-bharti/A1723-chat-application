@@ -1,0 +1,33 @@
+.user-info {
+  /* width:100%;
+  height: 100%; */
+  /* background-color: rgb(22, 17, 17); */
+  overflow: hidden;
+  margin: 2%;
+  padding: 2%;
+}
+
+.header-img{
+  /* width: 100%;
+  height: 100%; */
+  border-radius: 50%;
+}
+
+.user-info-header {
+  flex-direction: column;
+}
+
+.user-info-header-content {
+  text-align: center;
+  margin-top: 5%;
+  /* width: 100%; */
+}
+
+.info-name {
+  font-size: 20px;
+}
+
+.info-subtitle {
+  margin-top: 2%;
+  font-size: 18px;
+}

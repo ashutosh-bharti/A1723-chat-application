@@ -9,7 +9,17 @@ export class ChatOperationService {
 
   // Join chat room
   joinRoom(data: any): void {
-    this.socket.emit('joinRoom', { username: data.username, room: data.room, updated_at: data.updated_at});
+    this.socket.emit('joinRoom', data);
+  }
+
+  // Register chat rooms
+  registerRooms(data: any): void {
+    this.socket.emit('registerRooms', data);
+  }
+
+  // Emit event to get active user
+  getActiveUsers(data: any): void {
+    this.socket.emit('activeUsers', data);
   }
 
   // Get room and users
@@ -24,6 +34,13 @@ export class ChatOperationService {
     this.socket.emit('chatMessage', message);
   }
 
+  // PrivateMessage from server
+  getPrivateMessage(): any {
+    return this.socket
+      .fromEvent('privateMessage')
+      .pipe(map((data: any) => data.result));
+  }
+
   // Message from server
   getMessage(): any {
     return this.socket
@@ -31,9 +48,21 @@ export class ChatOperationService {
       .pipe(map((data: any) => data.result));
   }
 
+  // BotMessage from server
+  getBotMessage(): any {
+      return this.socket
+        .fromEvent('botMessage')
+        .pipe(map((data: any) => data.result));
+  }
+
   // Leave chat room
   leaveRoom(data: any): void {
-    this.socket.emit('leaveRoom', { username: data.username, room: data.room, updated_at: data.updated_at });
+    this.socket.emit('leaveRoom', data);
+  }
+
+  // User logout
+  userLogout(): void {
+    this.socket.emit('logout');
   }
 
 }

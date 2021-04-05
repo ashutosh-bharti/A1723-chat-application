@@ -1,28 +1,29 @@
-.mat-tab-group {
-  padding: 2%;
+.home-body {
+  height: 100%;
+  width: 100%;
+  align-self: center;
+  justify-content: center;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
-.mat-tab-label {
-  text-decoration: violet;
-}
-
-.login-register {
-  background-color: gray;
-  text-align: -moz-center;
-  margin-top: 5%;
-  margin-left: 5%;
-  width:90%;
-}
-
-.chat-nav{
+.chat-nav {
   height: 100%;
 }
 
-.mat-cart {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 16px;
+.login-register {
+  /* align-self: center; */
   padding: 16px;
+  margin-top: 2%;
+  margin-left: 30%;
   border-radius: 8px;
+  width: 30%;
+}
+
+#toggleCard{
+  margin-bottom: 10px;
+  margin-left: 5%;
+  margin-right: 2%;
+  color: white;
+  /* height: 40px; */
 }

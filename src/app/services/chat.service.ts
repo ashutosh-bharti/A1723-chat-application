@@ -7,26 +7,44 @@ export class ChatService {
   private baseURL = 'http://localhost:3000/api';
 
   constructor(private http: HttpClient) { }
-  create(chat: any): any
-   { 
-     //return this.http.post('/api/chat/new', chat);
+
+  createChat(data: any): any {
+    return this.http.post(this.baseURL + '/chats/new', data);
   }
-  editChat(id:number){
-    //return this.http.put('/api/chat' + id);
+
+  updateChatStatus(id: number, data: any): any {
+    return this.http.put(this.baseURL + '/chats/' + id, data);
   }
-  deleteChat(id:number){
-    //return this.http.delete('/api/chat' + id );
+
+  deleteChat(id: number): any {
+    return this.http.delete(this.baseURL + '/chats/' + id);
   }
-  getChatDetails(id:number){
-    //return this.http.get('/api/chat' + id );
+
+  createMessage(data: any): any {
+    return this.http.post(this.baseURL + '/chats/messages/new', data);
   }
-  getChatPerson(chat:any){
-    //return this.http.get('/api/chat', chat );
+
+  getMessageDetails(id: number): any {
+    return this.http.get(this.baseURL + '/chats/messages/' + id );
   }
-  getChatGroup(chat:any){
-    //return this.http.get('/api/chat/', chat );
+
+  updateMessage(id: number, data: any): any {
+    return this.http.put(this.baseURL + '/chats/messages/' + id, data);
   }
-  getChatList(userId: number){
+
+  getChats(id: number): any {
+    return this.http.get(this.baseURL + '/chats/' + id);
+  }
+
+  createChatList(data: any): any {
+    return this.http.post(this.baseURL + '/chats/list/new', data);
+  }
+
+  getChatList(userId: number): any {
     return this.http.get(this.baseURL + '/chats/list/' + userId);
+  }
+
+  deleteChatList(id: any): any {
+    return this.http.delete(this.baseURL + '/chats/list/' + id);
   }
 }

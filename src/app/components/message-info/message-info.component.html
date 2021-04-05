@@ -1,0 +1,73 @@
+<mat-card class="message-info">
+    <mat-card-header class="message-info-header">
+        <button mat-icon-button (click)="closeScreen()">
+            <mat-icon>close</mat-icon>
+        </button>
+        <div class="message-info-header-content">
+            <mat-card style="background-color: #616161;">
+                <mat-card-header>
+                    <mat-card-subtitle>{{infoData.createdAt | date:'shortTime'}}</mat-card-subtitle>
+                </mat-card-header>
+                <mat-card-content style="display: inline-flex; flex-direction: column; width: 100%;">
+                    <span style="overflow-wrap: break-word;">{{infoData.text}}</span>
+                    <span *ngIf="infoData.isEdited == 1">Edited</span>
+                </mat-card-content>
+            </mat-card>
+        </div>
+    </mat-card-header>
+    <mat-card-content [ngStyle]="{width: 'fit-content'}">
+        <div class="message-info-body">
+            <ng-container *ngIf="isWait === true">
+                <mat-spinner></mat-spinner>
+            </ng-container>
+            <ng-container *ngIf="deliveredList.length > 0">
+                <span>Delivered:</span>
+                <mat-list [ngStyle]="{width: '100%', height:'100%'}">
+                    <mat-divider></mat-divider>
+                    <mat-list-item *ngFor="let d of deliveredList">
+                        <img *ngIf="isGroup" class="data-list-items"
+                            src="http://placehold.it/50/55C1E7/fff&text={{d.User.firstName[0].toUpperCase()}}{{d.User.lastName[0].toUpperCase()}}" alt="User Avatar"
+                            class="img-circle" />
+                        <div class="data-list-items">
+                            <div *ngIf="isGroup" class="list-name">{{d.User.firstName}} {{d.User.lastName}}</div>
+                            <div class="list-time">{{d.updatedAt | date:'d-M-YYYY, h:m aa'}}</div>
+                        </div>
+                        <mat-divider></mat-divider>
+                    </mat-list-item>
+                </mat-list>
+            </ng-container>
+            <ng-container *ngIf="seenList.length > 0">
+                <span>Seen:</span>
+                <mat-list [ngStyle]="{width: '100%', height:'100%'}">
+                    <mat-divider></mat-divider>
+                    <mat-list-item *ngFor="let s of seenList">
+                        <img *ngIf="isGroup" class="data-list-items"
+                            src="http://placehold.it/50/55C1E7/fff&text={{s.User.firstName[0].toUpperCase()}}{{s.User.lastName[0].toUpperCase()}}"
+                            alt="User Avatar" class="img-circle" />
+                        <div class="data-list-items">
+                            <div *ngIf="isGroup" class="list-name">{{s.User.firstName}} {{s.User.lastName}}</div>
+                            <div class="list-time">{{s.updatedAt | date:'d-M-YYYY, h:m aa'}}</div>
+                        </div>
+                        <mat-divider></mat-divider>
+                    </mat-list-item>
+                </mat-list>
+            </ng-container>
+            <ng-container *ngIf="sentList.length > 0">
+                <span>Sent:</span>
+                <mat-list [ngStyle]="{width: '100%', height:'100%'}">
+                    <mat-divider></mat-divider>
+                    <mat-list-item *ngFor="let u of sentList">
+                        <img *ngIf="isGroup" class="data-list-items"
+                            src="http://placehold.it/50/55C1E7/fff&text={{u.User.firstName[0].toUpperCase()}}{{u.User.lastName[0].toUpperCase()}}" alt="User Avatar"
+                            class="img-circle" />
+                        <div class="data-list-items">
+                            <div *ngIf="isGroup" class="list-name">{{u.User.firstName}} {{u.User.lastName}}</div>
+                            <div class="list-time">{{u.updatedAt | date:'d-M-YYYY, h:m aa'}}</div>
+                        </div>
+                        <mat-divider></mat-divider>
+                    </mat-list-item>
+                </mat-list>
+            </ng-container>
+        </div>
+    </mat-card-content>
+</mat-card>

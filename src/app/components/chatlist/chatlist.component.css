@@ -1,13 +1,27 @@
-.sidenav-container {
+.chatlist {
+  width: 100%;
   height: 100%;
+  padding: 2%;
+  padding-right: 3%;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
-.sidenav .mat-toolbar {
-  background: inherit;
+.chatlist-item {
+  padding: 2%;
+  width: 100%;
 }
 
-.mat-toolbar.mat-primary {
-  position: sticky;
-  top: 0;
-  z-index: 1;
+.item {
+  width: 100%;
+  display: flex;
+}
+
+.itemcol {
+  width: 100%;
+  display: inline;
+}
+
+.time-div {
+  padding-left: 2%;
 }
