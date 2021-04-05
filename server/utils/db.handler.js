@@ -348,7 +348,6 @@ const getGroups = (req, res, next) => {
                 res.status(400).send({ message: 'Not found' });
             }
             else {
-                console.log(findedGroups);
                 res.json(findedGroups);
             }
         })
