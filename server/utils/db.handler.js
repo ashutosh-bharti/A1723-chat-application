@@ -16,11 +16,15 @@ const authenticateUser = (req, res, next) => {
     })
     .then((findedUser) => {
         if (findedUser === null) {
-            console.log("null");
-            res.status(400).send({message: 'Not found'});
+            res.status(400).send({message: 'User not found!'});
+        }
+        else if (findedUser.isLogin === true) {
+            res.status(400).send({ message: 'You are already logged in!' });
         }
         else {
-            res.send({id:findedUser.userId});
+            findedUser.isLogin = true;
+            findedUser.save();
+            res.send({id: findedUser.userId});
         }
     })
     .catch((err) => {
@@ -36,11 +40,11 @@ const registerUser = (req, res, next) => {
         where: { username: data.email }
     })
     .then((findedUser) => {
-        console.log(findedUser);
         if(findedUser === null){
             Authenticate.create({
                 username: data.email,
                 password: data.password,
+                isLogin: true,
                 User: {
                     firstName: data.firstName,
                     lastName: data.lastName,
@@ -51,7 +55,6 @@ const registerUser = (req, res, next) => {
                 include: [Authenticate.authUser]
             })
             .then((newUser) => {
-                console.log(newUser.toJSON());
                 res.send(newUser.User.toJSON());
             })
             .catch((err) => {
@@ -100,7 +103,6 @@ const updateUser = (req, res, next) => {
         })
             .then((findedUser) => {
                 if (findedUser === null) {
-                    console.log("null");
                     res.status(400).send({ message: 'Not found' });
                 }
                 else{
@@ -492,9 +494,10 @@ const updateMembers = (req, res, next) => {
 
 // remove member from a group
 const removeMembers = (req, res, next) => {
+    console.log('removeMember', req.params.id, req.query);
     Member.destroy({
         where: {
-            userId: req.body.userId,
+            userId: req.query.userId,
             groupId: req.params.id
         },
         force: true
@@ -506,7 +509,7 @@ const removeMembers = (req, res, next) => {
             },
             {
                 where: {
-                    userId: req.body.userId,
+                    userId: req.query.userId,
                     list: `g${req.params.id}`
                 }
             });
@@ -581,12 +584,13 @@ const updateMessage = (req, res, next) => {
             id: req.params.id
         }
     })
-        .then((updatedMessage) => {
+        .then(async (updatedMessage) => {
             if (updatedMessage[0] === 0) {
                 res.status(400).send({ message: 'Not found' });
             }
             else {
-                res.send({ id: req.params.id });
+                const findedMessage = await Message.findByPk(req.params.id);
+                res.send({ Message: findedMessage });
             }
         })
         .catch((err) => {
@@ -988,6 +992,16 @@ const createMemberChat = async (data) => {
     }
 }
 
+// user logout
+const logout = async (id) => {
+    await Authenticate.update({
+        isLogin: false
+    },
+    {
+        where: { id }
+    });
+}
+
 module.exports = {
     addMembers,
     authenticateUser,
@@ -1008,6 +1022,7 @@ module.exports = {
     getMessage,
     getUser,
     getUserChat,
+    logout,
     registerUser,
     removeMembers,
     updateChatList,

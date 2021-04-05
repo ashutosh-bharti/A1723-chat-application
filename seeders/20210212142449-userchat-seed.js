@@ -154,6 +154,14 @@ module.exports = {
         list: 'u2',
         createdAt: new Date(),
         updatedAt: new Date()
+      },
+      {
+        userId: 3,
+        messageId: 2,
+        list: 'u4',
+        state: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
       }
     ]);
   },

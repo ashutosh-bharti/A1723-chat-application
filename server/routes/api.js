@@ -24,6 +24,7 @@ const {
     getMessage,
     getUser,
     getUserChat,
+    logout,
     registerUser,
     removeMembers,
     updateChatList,
@@ -36,6 +37,7 @@ const {
 const {
     getRoomUsers,
     getCurrentUser,
+    RemoveUserRoom,
     updateUserRoom,
     userJoin,
     userLeave
@@ -49,14 +51,13 @@ const botId = 1;
 
 // Run when client connects
 io.on('connection', socket => {
+
+    // Listen for joinRoom
     socket.on('joinRoom', ({ userId, room, msgData}) => {
 
-        let user = updateUserRoom(socket.id, room);
-        if (user === null) {
-            user = userJoin(socket.id, userId, room);
-        }
+        updateUserRoom(socket.id, userId, room);
 
-        socket.join(user.room);
+        socket.join(room);
 
         // create chat data
         const data = {
@@ -69,66 +70,106 @@ io.on('connection', socket => {
 
         // Broadcast when a user connects
         socket.broadcast
-            .to(user.room)
+            .to(room)
             .emit(
                 'botMessage',
                 { result: data }
             );
-
-            // Send users and room info
-            io.to(user.room).emit('roomUsers', {
-                room: user.room,
-                users: getRoomUsers(user.room)
-            });
+            
+        // Send users and room info
+        const users = getRoomUsers(room);
+        io.to(room).emit('roomUsers', { room, users });
 
         // save message to database
         createMemberChat(data);
 
+    });
+
+    // Listen for registerRooms
+    socket.on('registerRooms', ({ userId, rooms }) => {
+
+        const prevRooms = userJoin(socket.id, userId, rooms);
+
+        if(prevRooms === null) {
+
+            // join all room to user
+            rooms.forEach(room => {
+                if (room[0] === 'g') {
+                    socket.join(room);
+        
+                    // Send users and room info
+                    const users = getRoomUsers(room);
+                    io.to(room).emit('roomUsers', { room, users });
+                }
+            });
+        }
+        else {
+            const changedRoom = rooms.filter(room => prevRooms.indexOf(room) === -1);
+            // join all room to user
+            changedRoom.forEach(room => {
+                socket.join(room);
+
+                // Send users and room info
+                const users = getRoomUsers(room);
+                io.to(room).emit('roomUsers', { room, users });
+            });
+        }
+
+    });
+
+    // Listen for activeUsers
+    socket.on('activeUsers', ({room}) => {
+        if (room[0] === 'g') {
+            // Send users and room info
+            const users = getRoomUsers(room);
+            socket.emit('roomUsers', { room, users });
+        }
+        else {
+            const id = parseInt(room.substr(1));
+            const user = getCurrentUser(id);
+            if (user) {
+                // Send users and room info
+                socket.emit('roomUsers', { room, users: [user.userId] });
+            }
+            else {
+                socket.emit('roomUsers', { room, users: [] });
+            }
+        }
     });
 
     // Listen for chatMessage
     socket.on('chatMessage', data => {
-        const user = getCurrentUser(socket.id);
-
-        io.to(user.room).emit(
-            'message',
-            { result: data }
-        );
 
         // save message to database
         createMemberChat(data);
 
-    });
-
-    socket.on('changeRoom', ({ userId, room}) => {
-
-        let user = updateUserRoom(socket.id, room);
-
-        if(user !== null){
-            socket.join(user.room);
-
-            // Send users and room info
-            io.to(user.room).emit('roomUsers', {
-                room: user.room,
-                users: getRoomUsers(user.room)
-            });
+        // broadcast message to room
+        if (data.list[0] === 'g') {
+            io.to(data.list).emit(
+                'message',
+                { result: data }
+            );
         }
-        else{
-            user = userJoin(socket.id, userId, room);
-
-            socket.join(user.room);
-
-            // Send users and room info
-            io.to(user.room).emit('roomUsers', {
-                room: user.room,
-                users: getRoomUsers(user.room)
-            });
+        else {
+            const id = parseInt(data.list.substr(1));
+            const user = getCurrentUser(id);
+            if (user) {
+                socket.to(user.id).emit(
+                    'privateMessage',
+                    { result: data }
+                );
+            }
+            socket.emit(
+                'message',
+                { result: data }
+            );
         }
+
     });
 
     // Runs when client leave
     socket.on('leaveRoom', ({ userId, room, msgData}) => {
-        const user = userLeave(socket.id);
+        const flag = RemoveUserRoom(userId, room);
 
         // create chat data
         const data = {
@@ -139,20 +180,42 @@ io.on('connection', socket => {
             state: null
         };
 
-        if (user) {
-            io.to(user.room).emit(
+        if (flag) {
+
+            socket.leave(room);
+
+            io.to(room).emit(
                 'botMessage',
                 { result: data } //`${user.username} left the group`
             );
 
             // Send users and room info
-            io.to(user.room).emit('roomUsers', {
-                room: user.room,
-                users: getRoomUsers(user.room)
-            });
+            const users = getRoomUsers(room);
+            io.to(room).emit('roomUsers', { room, users });
 
             // save message to database
             createMemberChat(data);
+        }
+    });
+
+    // Runs when client logout
+    socket.on('logout', () => {
+        const user = userLeave(socket.id);
+
+        if (user !== null) {
+            // join all room to user
+            user.rooms.forEach(room => {
+                if (room[0] === 'g') {
+                    socket.leave(room);
+    
+                    // Send users and room info
+                    const users = getRoomUsers(room);
+                    io.to(room).emit('roomUsers', { room, users });
+                }
+            });
+
+            // logout
+            logout(user.userId);
         }
     });
 
@@ -161,11 +224,15 @@ io.on('connection', socket => {
         const user = userLeave(socket.id);
 
         if (user !== null) {
-            // Send users and room info
-            io.to(user.room).emit('roomUsers', {
-                room: user.room,
-                users: getRoomUsers(user.room)
+            // join all room to user
+            user.rooms.forEach(room => {
+                // Send users and room info
+                const users = getRoomUsers(room);
+                io.to(room).emit('roomUsers', { room, users });
             });
+
+            // logout
+            logout(user.userId);
         }
     });
 });
@@ -183,7 +250,7 @@ router.delete('/users/:id', deleteUser);
 
 // group routes
 router.post('/groups/new', createGroup);
-router.get('/groups/list', getGroups);  // all common lis of group
+router.get('/groups/list', getGroups);  // all common list of group
 router.get('/groups/:id', getGroup);  // group details
 router.put('/groups/:id', updateGroup);
 router.delete('/groups/:id', deleteGroup);

@@ -2,15 +2,14 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
 import { HomeComponent } from './components/home/home.component';
-import { UserProfileComponent } from './components/user-profile/user-profile.component';
-import { ChatComponent } from './components/chat/chat.component';
-import { AppComponent } from './app.component';
+import { AboutUsComponent } from './common/about-us/about-us.component';
+import { NotFoundComponent } from './common/not-found/not-found.component';
 
 const routes: Routes = [
   { path: 'home', component: HomeComponent },
-  { path: 'user-profile', component: UserProfileComponent },
-  { path: 'chat', component: ChatComponent },
-  // { path: '', component: AppComponent}
+  { path: 'about', component: AboutUsComponent },
+  { path: '', redirectTo: '/home', pathMatch: 'full' },
+  { path: '**', component: NotFoundComponent }
 ];
 
 @NgModule({

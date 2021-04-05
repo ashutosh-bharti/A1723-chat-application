@@ -7,6 +7,7 @@ module.exports = {
         username: 'chat@bot.com',
         password: '',
         userId: 1,
+        isLogin: true,
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -14,6 +15,7 @@ module.exports = {
         username: 'ashu@bot.com',
         password: 'ashu@123',
         userId: 2,
+        isLogin: false,
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -21,6 +23,7 @@ module.exports = {
         username: 'ankita@bot.com',
         password: 'ankita@123',
         userId: 3,
+        isLogin: false,
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -28,6 +31,7 @@ module.exports = {
         username: 'rishabh@bot.com',
         password: 'rishabh@123',
         userId: 4,
+        isLogin: false,
         createdAt: new Date(),
         updatedAt: new Date()
       },

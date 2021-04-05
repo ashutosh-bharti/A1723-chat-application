@@ -15,10 +15,14 @@ import { MatListModule } from '@angular/material/list';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatCardModule } from '@angular/material/card';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatTabsModule } from '@angular/material/tabs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatRippleModule } from '@angular/material/core';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDialogModule } from '@angular/material/dialog';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -26,17 +30,21 @@ import { AppComponent } from './app.component';
 import { ChatOperationService } from './services/chat-operation.service';
 import { AuthenticService } from './services/authentic.service';
 import { ChatService } from './services/chat.service';
-import { GroupChatService } from './services/group-chat.service';
+import { GroupService } from './services/group.service';
 
+import { NotFoundComponent } from './common/not-found/not-found.component';
+import { HeaderComponent } from './common/header/header.component';
+import { AboutUsComponent } from './common/about-us/about-us.component';
+import { CustomDialogComponent } from './common/custom-dialog/custom-dialog.component';
+import { ChatNavComponent } from './common/chat-nav/chat-nav.component';
 import { ChatComponent } from './components/chat/chat.component';
 import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
 import { HomeComponent } from './components/home/home.component';
-import { UserProfileComponent } from './components/user-profile/user-profile.component';
-import { NavComponent } from './components/nav/nav.component';
-import { MemberComponent } from './components/member/member.component';
-import { HeaderComponent } from './components/header/header.component';
+import { UserProfileComponent } from './common/user-profile/user-profile.component';
 import { ChatlistComponent } from './components/chatlist/chatlist.component';
+import { ChatInfoComponent } from './components/chat-info/chat-info.component';
+import { MessageInfoComponent } from './components/message-info/message-info.component';
 
 const config: SocketIoConfig = { url: 'http://localhost:4000', options: {} };
 
@@ -48,10 +56,14 @@ const config: SocketIoConfig = { url: 'http://localhost:4000', options: {} };
     LoginComponent,
     RegisterComponent,
     UserProfileComponent,
-    NavComponent,
-    MemberComponent,
+    ChatNavComponent,
     HeaderComponent,
-    ChatlistComponent
+    ChatlistComponent,
+    ChatInfoComponent,
+    MessageInfoComponent,
+    CustomDialogComponent,
+    AboutUsComponent,
+    NotFoundComponent,
   ],
   imports: [
     CommonModule,
@@ -70,10 +82,14 @@ const config: SocketIoConfig = { url: 'http://localhost:4000', options: {} };
     MatSidenavModule,
     MatIconModule,
     MatListModule,
-    MatTabsModule,
     MatGridListModule,
     MatCardModule,
     MatMenuModule,
+    MatRippleModule,
+    MatChipsModule,
+    MatProgressBarModule,
+    MatProgressSpinnerModule,
+    MatDialogModule,
 
     SocketIoModule.forRoot(config)
   ],
@@ -81,7 +97,7 @@ const config: SocketIoConfig = { url: 'http://localhost:4000', options: {} };
     ChatOperationService,
     AuthenticService,
     ChatService,
-    GroupChatService,
+    GroupService,
   ],
   bootstrap: [AppComponent]
 })
