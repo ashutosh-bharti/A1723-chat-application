@@ -35,13 +35,13 @@ import { GroupService } from './services/group.service';
 import { NotFoundComponent } from './common/not-found/not-found.component';
 import { HeaderComponent } from './common/header/header.component';
 import { AboutUsComponent } from './common/about-us/about-us.component';
+import { UserProfileComponent } from './common/user-profile/user-profile.component';
 import { CustomDialogComponent } from './common/custom-dialog/custom-dialog.component';
 import { ChatNavComponent } from './common/chat-nav/chat-nav.component';
 import { ChatComponent } from './components/chat/chat.component';
 import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
 import { HomeComponent } from './components/home/home.component';
-import { UserProfileComponent } from './common/user-profile/user-profile.component';
 import { ChatlistComponent } from './components/chatlist/chatlist.component';
 import { ChatInfoComponent } from './components/chat-info/chat-info.component';
 import { MessageInfoComponent } from './components/message-info/message-info.component';
@@ -71,8 +71,8 @@ const config: SocketIoConfig = { url: 'http://localhost:4000', options: {} };
     HttpClientModule,
     AppRoutingModule,
     FormsModule,
-
     ReactiveFormsModule,
+
     MatFormFieldModule,
     LayoutModule,
     BrowserAnimationsModule,

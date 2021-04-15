@@ -13,7 +13,7 @@ export class LoginComponent implements OnInit {
 
   loginForm = new FormGroup({
     email: new FormControl('', [Validators.required, Validators.email, Validators.minLength(6)]),
-    password: new FormControl('', [Validators.required, Validators.minLength(3)])
+    password: new FormControl('', [Validators.required, Validators.minLength(6)])
   });
 
   constructor(private auth: AuthenticService) { }

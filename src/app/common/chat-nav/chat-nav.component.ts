@@ -2,7 +2,7 @@ import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { MatDialog } from '@angular/material/dialog';
 import { Observable } from 'rxjs';
-import { map, shareReplay, catchError } from 'rxjs/operators';
+import { map, shareReplay } from 'rxjs/operators';
 import { GroupService } from 'src/app/services/group.service';
 import { ChatService } from 'src/app/services/chat.service';
 import { CustomDialogComponent } from '../custom-dialog/custom-dialog.component';
